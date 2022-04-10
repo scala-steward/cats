@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Laika 0.18.1 + Helium Theme" />
+    <title>ApplicativeError and MonadError</title>
+    
+      <meta name="author" content="Cody Allen"/>
+    
+      <meta name="author" content="Ross Baker"/>
+    
+      <meta name="author" content="P. Oscar Boykin"/>
+    
+      <meta name="author" content="Travis Brown"/>
+    
+      <meta name="author" content="Adelbert Chang"/>
+    
+      <meta name="author" content="Peter Neyens"/>
+    
+      <meta name="author" content="Rob Norris"/>
+    
+      <meta name="author" content="Erik Osheim"/>
+    
+      <meta name="author" content="LukaJCB"/>
+    
+      <meta name="author" content="Michael Pilquist"/>
+    
+      <meta name="author" content="Miles Sabin"/>
+    
+      <meta name="author" content="Daniel Spiewak"/>
+    
+      <meta name="author" content="Frank Thomas"/>
+    
+      <meta name="author" content="Julien Truffaut"/>
+    
+      <meta name="author" content="Kailuo Wang"/>
+    
+    
+      <meta name="description" content="docs"/>
+    
+    
+      <link rel="icon" sizes="32x32" type="image/png" href="https://typelevel.org/img/favicon.png"/>
+    
+    
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css">
+    
+    <link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../site/styles.css" />
+    <script src="../helium/laika-helium.js"></script>
+    <script src="../js/sponsors.js"></script>
+    
+    
+    <script> /* for avoiding page load transitions */ </script>
+  </head>
+
+  <body>
+
+    <header id="top-bar">
+
+      <div class="row">
+        <a id="nav-icon">
+          <i class="icofont-laika" title="Navigation">&#xefa2;</i>
+        </a>
+        
+      </div>
+
+      <a class="image-link" href="https://typelevel.org"><img src="https://typelevel.org/img/logo.svg"></a>
+
+      <span class="row links"><a class="icon-link svg-link" href="https://typelevel.org/cats/api/"><span title="API"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
+  </g>
+</svg></span></a><a class="icon-link svg-link" href="https://github.com/scala-steward/cats"><span title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a><a class="icon-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika" title="Chat">&#xeed5;</i></a><a class="icon-link" href="https://twitter.com/typelevel"><i class="icofont-laika" title="Twitter">&#xed7a;</i></a></span>
+
+    </header>
+
+    <nav id="sidebar">
+
+      <div class="row">
+        <a class="icon-link svg-link" href="https://typelevel.org/cats/api/"><span title="API"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm-50,-0c13.246,-0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,-0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm2.705,16.735l7.239,0l0.622,-4.904l-21.833,0l-0,4.904l7.589,0l0,22.067l6.383,0l-0,-22.067Zm58.076,7.265c-0,-8.757 -3.698,-14.166 -10.781,-14.166c-7.083,-0 -10.781,5.604 -10.781,14.166c0,8.757 3.698,14.166 10.781,14.166c7.083,0 10.781,-5.604 10.781,-14.166Zm-6.539,0c0,6.538 -1.128,9.496 -4.242,9.496c-2.997,0 -4.242,-2.88 -4.242,-9.496c-0,-6.616 1.206,-9.496 4.242,-9.496c3.036,-0 4.242,2.88 4.242,9.496Zm-29.242,-67c13.246,0 24,10.754 24,24c0,13.246 -10.754,24 -24,24c-13.246,0 -24,-10.754 -24,-24c0,-13.246 10.754,-24 24,-24Zm0.512,9.834c-7.122,-0 -12.609,5.098 -12.609,14.127c-0,9.263 5.215,14.205 12.532,14.205c4.164,0 7.083,-1.634 9.068,-3.658l-2.88,-3.697c-1.518,1.206 -3.153,2.413 -5.838,2.413c-3.697,-0 -6.266,-2.763 -6.266,-9.263c-0,-6.616 2.724,-9.379 6.149,-9.379c2.102,-0 3.892,0.778 5.371,1.984l3.113,-3.775c-2.257,-1.868 -4.748,-2.957 -8.64,-2.957Z"/>
+  </g>
+</svg></span></a><a class="icon-link svg-link" href="https://github.com/scala-steward/cats"><span title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a><a class="icon-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika" title="Chat">&#xeed5;</i></a><a class="icon-link" href="https://twitter.com/typelevel"><i class="icofont-laika" title="Twitter">&#xed7a;</i></a>
+      </div>
+
+      <ul class="nav-list">
+        <li class="level1"><a href="../index.html">Cats</a></li>
+        <li class="level1"><a href="../typeclasses.html">Type Classes</a></li>
+        <li class="level1"><a href="../datatypes.html">Data Types</a></li>
+        <li class="level1"><a href="../algebra.html">Algebra</a></li>
+        <li class="level1"><a href="../motivations.html">Motivations</a></li>
+        <li class="level1"><a href="../resources_for_learners.html">Resources for Learners</a></li>
+        <li class="level1"><a href="../jump_start_guide.html">Jump Start Guide</a></li>
+        <li class="level1"><a href="../imports.html">Imports</a></li>
+        <li class="level1"><a href="../faq.html">FAQ</a></li>
+        <li class="level1"><a href="../CONTRIBUTING.html">Contributor guide</a></li>
+        <li class="level1"><a href="../colophon.html">Colophon</a></li>
+        <li class="level1"><a href="../nomenclature.html">Glossary</a></li>
+        <li class="level1"><a href="../guidelines.html">Guidelines</a></li>
+        <li class="level1"><a href="../typelevelEcosystem.html">Typelevel Ecosystem</a></li>
+        <li class="level1 nav-header">Type Classes</li>
+        <li class="level2"><a href="alternative.html">Alternative</a></li>
+        <li class="level2"><a href="applicative.html">Applicative</a></li>
+        <li class="level2 active"><a href="#">ApplicativeError and MonadError</a></li>
+        <li class="level2"><a href="applicativetraverse.html">Applicative and Traversable Functors</a></li>
+        <li class="level2"><a href="arrow.html">Arrow</a></li>
+        <li class="level2"><a href="arrowchoice.html">Arrow Choice</a></li>
+        <li class="level2"><a href="bifunctor.html">Bifunctor</a></li>
+        <li class="level2"><a href="bimonad.html">Bimonad</a></li>
+        <li class="level2"><a href="comonad.html">Comonad</a></li>
+        <li class="level2"><a href="contravariant.html">Contravariant</a></li>
+        <li class="level2"><a href="contravariantmonoidal.html">Contravariant Monoidal</a></li>
+        <li class="level2"><a href="eq.html">Eq</a></li>
+        <li class="level2"><a href="foldable.html">Foldable</a></li>
+        <li class="level2"><a href="functor.html">Functor</a></li>
+        <li class="level2"><a href="invariant.html">Invariant</a></li>
+        <li class="level2"><a href="invariantmonoidal.html">Invariant Monoidal</a></li>
+        <li class="level2"><a href="lawtesting.html">Law testing</a></li>
+        <li class="level2"><a href="monad.html">Monad</a></li>
+        <li class="level2"><a href="monoid.html">Monoid</a></li>
+        <li class="level2"><a href="monoidk.html">MonoidK</a></li>
+        <li class="level2"><a href="nonemptytraverse.html">NonEmptyTraverse</a></li>
+        <li class="level2"><a href="parallel.html">Parallel</a></li>
+        <li class="level2"><a href="reducible.html">Reducible</a></li>
+        <li class="level2"><a href="semigroup.html">Semigroup</a></li>
+        <li class="level2"><a href="semigroupk.html">SemigroupK</a></li>
+        <li class="level2"><a href="show.html">Show</a></li>
+        <li class="level2"><a href="traverse.html">Traverse</a></li>
+        <li class="level1 nav-header">Data Types</li>
+        <li class="level2"><a href="../datatypes/chain.html">Chain</a></li>
+        <li class="level2"><a href="../datatypes/const.html">Const</a></li>
+        <li class="level2"><a href="../datatypes/contt.html">ContT</a></li>
+        <li class="level2"><a href="../datatypes/either.html">Either</a></li>
+        <li class="level2"><a href="../datatypes/eithert.html">EitherT</a></li>
+        <li class="level2"><a href="../datatypes/eval.html">Eval</a></li>
+        <li class="level2"><a href="../datatypes/freeapplicative.html">Free Applicative</a></li>
+        <li class="level2"><a href="../datatypes/freemonad.html">Free Monad</a></li>
+        <li class="level2"><a href="../datatypes/functionk.html">FunctionK</a></li>
+        <li class="level2"><a href="../datatypes/id.html">Id</a></li>
+        <li class="level2"><a href="../datatypes/ior.html">Ior</a></li>
+        <li class="level2"><a href="../datatypes/iort.html">IorT</a></li>
+        <li class="level2"><a href="../datatypes/kleisli.html">Kleisli</a></li>
+        <li class="level2"><a href="../datatypes/nel.html">NonEmptyList</a></li>
+        <li class="level2"><a href="../datatypes/nested.html">Nested</a></li>
+        <li class="level2"><a href="../datatypes/oneand.html">OneAnd</a></li>
+        <li class="level2"><a href="../datatypes/optiont.html">OptionT</a></li>
+        <li class="level2"><a href="../datatypes/state.html">State</a></li>
+        <li class="level2"><a href="../datatypes/validated.html">Validated</a></li>
+        <li class="level2"><a href="../datatypes/writer.html">Writer</a></li>
+        <li class="level2"><a href="../datatypes/writert.html">WriterT</a></li>
+      </ul>
+
+      <ul class="nav-list">
+        <li class="level1 nav-header">Related Projects</li>
+        
+          <li class="level2"><a href="https://typelevel.org/cats-effect/">cats-effect</a></li>
+        
+          <li class="level2"><a href="https://typelevel.org/mouse">Mouse</a></li>
+        
+          <li class="level2"><a href="https://github.com/typelevel/discipline/">discipline</a></li>
+        
+      </ul>
+
+    </nav>
+
+    <div id="container">
+
+      <nav id="page-nav">
+        <p class="header"><a href="#">ApplicativeError and MonadError</a></p>
+
+        <ul class="nav-list">
+          <li class="level1"><a href="#applicative-error">Applicative Error</a></li>
+          <li class="level2"><a href="#description-1">Description</a></li>
+          <li class="level2"><a href="#typeclass-definition-1">TypeClass Definition</a></li>
+          <li class="level2"><a href="#use-case-1">Use Case</a></li>
+          <li class="level2"><a href="#it-is-an-applicative-after-all">It is an <code>Applicative</code> after all</a></li>
+          <li class="level2"><a href="#handling-errors">Handling Errors</a></li>
+          <li class="level1"><a href="#monaderror">MonadError</a></li>
+          <li class="level2"><a href="#description-2">Description</a></li>
+          <li class="level2"><a href="#typeclass-definition-2">TypeClass Definition</a></li>
+          <li class="level2"><a href="#use-case-2">Use Case</a></li>
+        </ul>
+
+        <p class="footer"></p>
+      </nav>
+
+      <main class="content">
+
+        <h1 id="applicativeerror-and-monaderror" class="title">ApplicativeError and MonadError</h1>
+        
+        <h2 id="applicative-error" class="section">Applicative Error<a class="anchor-link right" href="#applicative-error"><i class="icofont-laika">&#xef71;</i></a></h2>
+        
+        <h3 id="description-1" class="section">Description<a class="anchor-link right" href="#description-1"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p><code>ApplicativeError</code> extends <code>Applicative</code> to provide handling for types
+        that represent the quality of an exception or an error, for example, <code>Either[E, A]</code></p>
+        
+        <h3 id="typeclass-definition-1" class="section">TypeClass Definition<a class="anchor-link right" href="#typeclass-definition-1"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p><code>ApplicativeError</code> is defined by the following <code>trait</code></p>
+        <pre><code>trait ApplicativeError[F[_], E] extends Applicative[F] {
+  def raiseError[A](e: E): F[A]
+  def handleErrorWith[A](fa: F[A])(f: E =&gt; F[A]): F[A]
+  def handleError[A](fa: F[A])(f: E =&gt; A): F[A]
+  def attempt[A](fa: F[A]): F[Either[E, A]]
+  //More functions elided
+}</code></pre>
+        
+        <h3 id="use-case-1" class="section">Use Case<a class="anchor-link right" href="#use-case-1"><i class="icofont-laika">&#xef71;</i></a></h3>
+        
+        <h4 id="either" class="section"><code>Either</code><a class="anchor-link right" href="#either"><i class="icofont-laika">&#xef71;</i></a></h4>
+        <p>We can start with a less abstract way of performing a function. Here 
+        we will divide one number by another. </p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">attemptDivide</span><span>(</span><span class="identifier">x</span><span>: </span><span class="type-name">Int</span><span>, </span><span class="identifier">y</span><span>: </span><span class="type-name">Int</span><span>): </span><span class="type-name">Either</span><span>[</span><span class="type-name">String</span><span>, </span><span class="type-name">Int</span><span>] = {
+   </span><span class="keyword">if</span><span> (</span><span class="identifier">y</span><span> == </span><span class="number-literal">0</span><span>) </span><span class="type-name">Left</span><span>(</span><span class="string-literal">&quot;divisor is zero&quot;</span><span>)
+   </span><span class="keyword">else</span><span> {
+      </span><span class="type-name">Right</span><span>(</span><span class="identifier">x</span><span> / </span><span class="identifier">y</span><span>)
+   }
+}</span></code></pre>
+        <p>While fine in the above approach, we can abstract the <code>Either</code> away
+        to support any other kind of &quot;error&quot; type without having to 
+        create multiple functions with different &quot;container&quot; types.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">implicits</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">attemptDivideApplicativeError</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]](</span><span class="identifier">x</span><span>: </span><span class="type-name">Int</span><span>, </span><span class="identifier">y</span><span>: </span><span class="type-name">Int</span><span>)(</span><span class="keyword">implicit</span><span> </span><span class="identifier">ae</span><span>: </span><span class="type-name">ApplicativeError</span><span>[</span><span class="type-name">F</span><span>, </span><span class="type-name">String</span><span>]): </span><span class="type-name">F</span><span>[</span><span class="type-name">Int</span><span>] = {
+   </span><span class="keyword">if</span><span> (</span><span class="identifier">y</span><span> == </span><span class="number-literal">0</span><span>) </span><span class="identifier">ae</span><span>.</span><span class="identifier">raiseError</span><span>(</span><span class="string-literal">&quot;divisor is error&quot;</span><span>)
+   </span><span class="keyword">else</span><span> {
+      </span><span class="identifier">ae</span><span>.</span><span class="identifier">pure</span><span>(</span><span class="identifier">x</span><span>/</span><span class="identifier">y</span><span>)
+   }
+}</span></code></pre>
+        <p>The above method summons <code>ApplicativeError</code> to provide behavior representing
+        an error where the end-user, based on type, will get their 
+        appropriate response.</p>
+        <p><code>ApplicativeError</code> is an <code>Applicative</code>, which means all <code>Applicative</code> 
+        functions are available for use. One such method is <code>pure</code>, which will 
+        return the <code>F[_]</code> representation, where <code>F</code> could represent <code>Either</code>. </p>
+        <p>Another method that you will see is <code>raiseError</code>, which will generate 
+        the specific error type depending on what <code>F[_]</code> represents. 
+        If <code>F[_]</code> is an <code>Either</code>, then <code>ae.raiseError</code> will return <code>Left</code>. 
+        If <code>F[_]</code> represents a <code>Validation</code>, then <code>ae.raiseError</code> will return <code>Invalid</code>.
+        For example, if we want to use an <code>Either</code> as our error representation,
+        we can do the following:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">type</span><span> </span><span class="type-name">OnError</span><span>[</span><span class="type-name">A</span><span>] = </span><span class="type-name">Either</span><span>[</span><span class="type-name">String</span><span>, </span><span class="type-name">A</span><span>]
+</span><span class="keyword">val</span><span> </span><span class="identifier">e</span><span>: </span><span class="type-name">OnError</span><span>[</span><span class="type-name">Int</span><span>] = </span><span class="identifier">attemptDivideApplicativeError</span><span>(</span><span class="number-literal">30</span><span>, </span><span class="number-literal">10</span><span>)</span></code></pre>
+        <p>or simply via assignment</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">f</span><span>: </span><span class="type-name">Either</span><span>[</span><span class="type-name">String</span><span>, </span><span class="type-name">Int</span><span>] = </span><span class="identifier">attemptDivideApplicativeError</span><span>(</span><span class="number-literal">30</span><span>, </span><span class="number-literal">10</span><span>)</span></code></pre>
+        
+        <h4 id="validated" class="section"><code>Validated</code><a class="anchor-link right" href="#validated"><i class="icofont-laika">&#xef71;</i></a></h4>
+        <p>Given the same function <code>attemptDivideApplicativeError</code>, we can call that
+        function again but with a different return type, since the <code>ApplicativeError</code>
+        can support other &quot;error&quot; based types.  Here we will use <code>cats.data.Validated</code>
+        when calling <code>attemptDivideApplicativeError</code>. Notice that 
+        <code>attemptDivideApplicativeError</code> is the same as we defined above, 
+        so we make no other changes.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">implicits</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">data</span><span>.</span><span class="type-name">Validated</span><span>
+
+</span><span class="keyword">type</span><span> </span><span class="type-name">MyValidated</span><span>[</span><span class="type-name">A</span><span>] = </span><span class="type-name">Validated</span><span>[</span><span class="type-name">String</span><span>, </span><span class="type-name">A</span><span>]
+</span><span class="keyword">val</span><span> </span><span class="identifier">g</span><span> = </span><span class="identifier">attemptDivideApplicativeError</span><span>[</span><span class="type-name">MyValidated</span><span>](</span><span class="number-literal">30</span><span>, </span><span class="number-literal">10</span><span>)</span></code></pre>
+        <p>We can inline the right projection type alias, <code>MyValidated</code>, doing the following:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">h</span><span> = </span><span class="identifier">attemptDivideApplicativeError</span><span>[({ </span><span class="keyword">type</span><span> </span><span class="type-name">T</span><span>[</span><span class="type-name">A</span><span>] = </span><span class="type-name">Validated</span><span>[</span><span class="type-name">String</span><span>, </span><span class="type-name">A</span><span>]})#</span><span class="type-name">T</span><span>](</span><span class="number-literal">30</span><span>, </span><span class="number-literal">10</span><span>)</span></code></pre>
+        <p>Or we can use <a href="https://github.com/typelevel/kind-projector">KindProjector</a> 
+        to make this more refined and readable</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">j</span><span> = </span><span class="identifier">attemptDivideApplicativeError</span><span>[</span><span class="type-name">Validated</span><span>[</span><span class="type-name">String</span><span>, *]](</span><span class="number-literal">30</span><span>, </span><span class="number-literal">10</span><span>)</span></code></pre>
+        
+        <h3 id="it-is-an-applicative-after-all" class="section">It is an <code>Applicative</code> after all<a class="anchor-link right" href="#it-is-an-applicative-after-all"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>As a Reminder, this is an <a href="applicative.html"><code>Applicative</code></a> 
+        so all the methods of <code>Applicative</code> are available to you to use in 
+        manipulating your values, <code>ap</code>, <code>mapN</code>, etc. In the following example, notice
+        we are using <code>Applicative</code>&#39;s <code>map2</code>, and of course, <code>pure</code> which also is a 
+        form of <code>Applicative</code>.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">implicits</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">attemptDivideApplicativeErrorWithMap2</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]](</span><span class="identifier">x</span><span>: </span><span class="type-name">Int</span><span>, </span><span class="identifier">y</span><span>: </span><span class="type-name">Int</span><span>)(</span><span class="keyword">implicit</span><span> </span><span class="identifier">ae</span><span>: </span><span class="type-name">ApplicativeError</span><span>[</span><span class="type-name">F</span><span>, </span><span class="type-name">String</span><span>]): </span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>] = {
+   </span><span class="keyword">if</span><span> (</span><span class="identifier">y</span><span> == </span><span class="number-literal">0</span><span>) </span><span class="identifier">ae</span><span>.</span><span class="identifier">raiseError</span><span>(</span><span class="string-literal">&quot;divisor is error&quot;</span><span>)
+   </span><span class="keyword">else</span><span> {
+     </span><span class="keyword">val</span><span> </span><span class="identifier">fa</span><span> = </span><span class="identifier">ae</span><span>.</span><span class="identifier">pure</span><span>(</span><span class="identifier">x</span><span>)
+     </span><span class="keyword">val</span><span> </span><span class="identifier">fb</span><span> = </span><span class="identifier">ae</span><span>.</span><span class="identifier">pure</span><span>(</span><span class="identifier">y</span><span>)
+     </span><span class="identifier">ae</span><span>.</span><span class="identifier">map2</span><span>(</span><span class="identifier">fa</span><span>, </span><span class="identifier">fb</span><span>)(</span><span class="identifier">_</span><span> / </span><span class="identifier">_</span><span>)
+   }
+}</span></code></pre>
+        
+        <h3 id="handling-errors" class="section">Handling Errors<a class="anchor-link right" href="#handling-errors"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p><code>ApplicativeError</code> has methods to handle what to do when <code>F[_]</code> represents an error. 
+        In the following example, <code>attemptDivideApplicativeErrorAbove2</code>
+        creates an error representation if the divisor
+        is <code>0</code> or <code>1</code> with the message &quot;Bad Math&quot; or &quot;Waste of Time&quot;.<br>
+        We will feed the result from <code>attemptDivideApplicativeErrorAbove2</code> 
+        into the <code>handler</code> method, where this method will pattern match on the message
+        and provide an alternative outcome.</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">implicits</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">attemptDivideApplicativeErrorAbove2</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]](</span><span class="identifier">x</span><span>: </span><span class="type-name">Int</span><span>, </span><span class="identifier">y</span><span>: </span><span class="type-name">Int</span><span>)(</span><span class="keyword">implicit</span><span> </span><span class="identifier">ae</span><span>: </span><span class="type-name">ApplicativeError</span><span>[</span><span class="type-name">F</span><span>, </span><span class="type-name">String</span><span>]): </span><span class="type-name">F</span><span>[</span><span class="type-name">Int</span><span>] =
+  </span><span class="keyword">if</span><span> (</span><span class="identifier">y</span><span> == </span><span class="number-literal">0</span><span>) </span><span class="identifier">ae</span><span>.</span><span class="identifier">raiseError</span><span>(</span><span class="string-literal">&quot;Bad Math&quot;</span><span>)
+  </span><span class="keyword">else</span><span> </span><span class="keyword">if</span><span> (</span><span class="identifier">y</span><span> == </span><span class="number-literal">1</span><span>) </span><span class="identifier">ae</span><span>.</span><span class="identifier">raiseError</span><span>(</span><span class="string-literal">&quot;Waste of Time&quot;</span><span>)
+  </span><span class="keyword">else</span><span> </span><span class="identifier">ae</span><span>.</span><span class="identifier">pure</span><span>(</span><span class="identifier">x</span><span> / </span><span class="identifier">y</span><span>)
+
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">handler</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]](</span><span class="identifier">f</span><span>: </span><span class="type-name">F</span><span>[</span><span class="type-name">Int</span><span>])(</span><span class="keyword">implicit</span><span> </span><span class="identifier">ae</span><span>: </span><span class="type-name">ApplicativeError</span><span>[</span><span class="type-name">F</span><span>, </span><span class="type-name">String</span><span>]): </span><span class="type-name">F</span><span>[</span><span class="type-name">Int</span><span>] = {
+  </span><span class="identifier">ae</span><span>.</span><span class="identifier">handleError</span><span>(</span><span class="identifier">f</span><span>) {
+    </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;Bad Math&quot;</span><span>      =&gt; -</span><span class="number-literal">1</span><span>
+    </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;Waste of Time&quot;</span><span> =&gt; -</span><span class="number-literal">2</span><span>
+    </span><span class="keyword">case</span><span> </span><span class="identifier">_</span><span>               =&gt; -</span><span class="number-literal">3</span><span>
+  }
+}</span></code></pre>
+        <p>Running the following will result in <code>Right(-1)</code></p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">handler</span><span>(</span><span class="identifier">attemptDivideApplicativeErrorAbove2</span><span>(</span><span class="number-literal">3</span><span>, </span><span class="number-literal">0</span><span>))</span></code></pre>
+        <p><code>handleErrorWith</code> is nearly the same as <code>handleError</code> but 
+        instead of returning a value <code>A</code>, we will return <code>F[_]</code>. This could provide us 
+        the opportunity to make it very abstract and return a value from a <code>Monoid.empty</code>.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">handlerErrorWith</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>], </span><span class="type-name">M</span><span>[</span><span class="identifier">_</span><span>], </span><span class="type-name">A</span><span>](</span><span class="identifier">f</span><span>: </span><span class="type-name">F</span><span>[</span><span class="type-name">A</span><span>])(</span><span class="keyword">implicit</span><span> </span><span class="type-name">F</span><span>: </span><span class="type-name">ApplicativeError</span><span>[</span><span class="type-name">F</span><span>, </span><span class="type-name">String</span><span>], </span><span class="type-name">M</span><span>:</span><span class="type-name">Monoid</span><span>[</span><span class="type-name">A</span><span>]): </span><span class="type-name">F</span><span>[</span><span class="type-name">A</span><span>] = {
+  </span><span class="type-name">F</span><span>.</span><span class="identifier">handleErrorWith</span><span>(</span><span class="identifier">f</span><span>)(</span><span class="identifier">_</span><span> =&gt; </span><span class="type-name">F</span><span>.</span><span class="identifier">pure</span><span>(</span><span class="type-name">M</span><span>.</span><span class="identifier">empty</span><span>))
+}</span></code></pre>
+        <p>Running the following will result in <code>Right(0)</code></p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">handlerErrorWith</span><span>(</span><span class="identifier">attemptDivideApplicativeErrorAbove2</span><span>(</span><span class="number-literal">3</span><span>, </span><span class="number-literal">0</span><span>))</span></code></pre>
+        
+        <h2 id="monaderror" class="section">MonadError<a class="anchor-link right" href="#monaderror"><i class="icofont-laika">&#xef71;</i></a></h2>
+        
+        <h3 id="description-2" class="section">Description<a class="anchor-link right" href="#description-2"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>Since a <code>Monad</code> extends an <code>Applicative</code>, there is naturally a <code>MonadError</code> that 
+        will extend the functionality of the <code>ApplicativeError</code> to provide <code>flatMap</code>
+        composition.</p>
+        
+        <h3 id="typeclass-definition-2" class="section">TypeClass Definition<a class="anchor-link right" href="#typeclass-definition-2"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>The Definition for <code>MonadError</code> extends <code>Monad</code> which provides the
+        methods, <code>flatMap</code>, <code>whileM_</code>.  <code>MonadError</code> also provides error 
+        handling methods like <code>ensure</code>, <code>ensureOr</code>, <code>adaptError</code>, <code>rethrow</code>.</p>
+        <pre><code>trait MonadError[F[_], E] extends ApplicativeError[F, E] with Monad[F] {
+  def ensure[A](fa: F[A])(error: =&gt; E)(predicate: A =&gt; Boolean): F[A] 
+  def ensureOr[A](fa: F[A])(error: A =&gt; E)(predicate: A =&gt; Boolean): F[A]
+  def adaptError[A](fa: F[A])(pf: PartialFunction[E, E]): F[A]
+  def rethrow[A, EE &lt;: E](fa: F[Either[EE, A]]): F[A]
+}</code></pre>
+        
+        <h3 id="use-case-2" class="section">Use Case<a class="anchor-link right" href="#use-case-2"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>Given a method that accepts a tuple of coordinates, it finds the closest city. For this example
+        we will hard-code &quot;Minneapolis, MN,&quot; but you can imagine for the sake of 
+        In this example, you would either consult a database or a web service.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">getCityClosestToCoordinate</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]](</span><span class="identifier">x</span><span>: (</span><span class="type-name">Int</span><span>, </span><span class="type-name">Int</span><span>))(</span><span class="keyword">implicit</span><span> </span><span class="identifier">ae</span><span>: </span><span class="type-name">ApplicativeError</span><span>[</span><span class="type-name">F</span><span>, </span><span class="type-name">String</span><span>]): </span><span class="type-name">F</span><span>[</span><span class="type-name">String</span><span>] = {
+  </span><span class="identifier">ae</span><span>.</span><span class="identifier">pure</span><span>(</span><span class="string-literal">&quot;Minneapolis, MN&quot;</span><span>)
+}</span></code></pre>
+        <p>Next, let&#39;s follow up with another method, <code>getTemperatureByCity</code>, that given a 
+        city, possibly a city that was just discovered by its coordinates, we get 
+        the temperature for that city. Here, for the sake of demonstration, 
+        we are hardcoding a temperature of 78°F.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">getTemperatureByCity</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]](</span><span class="identifier">city</span><span>: </span><span class="type-name">String</span><span>)(</span><span class="keyword">implicit</span><span> </span><span class="identifier">ae</span><span>: </span><span class="type-name">ApplicativeError</span><span>[</span><span class="type-name">F</span><span>, </span><span class="type-name">String</span><span>]): </span><span class="type-name">F</span><span>[</span><span class="type-name">Int</span><span>] = {
+  </span><span class="identifier">ae</span><span>.</span><span class="identifier">pure</span><span>(</span><span class="number-literal">78</span><span>)
+}</span></code></pre>
+        <p>With the methods that we will compose in place let&#39;s create a method that will
+        compose the above methods using a for comprehension which
+        interprets to a <code>flatMap</code>-<code>map</code> combination.<br></p>
+        <p><code>getTemperatureFromByCoordinates</code> parameterized type 
+        <code>[F[_]:MonadError[*[_], String]</code> injects <code>F[_]</code> into <code>MonadError[*[_], String]</code>
+        thus if the &quot;error type&quot; you wish to use is <code>Either[String, *]</code>, the <code>Either</code>
+        would be placed in the hole of <code>MonadError</code>, in this case, 
+        <code>MonadError[Either[String, *], String]</code></p>
+        <p><code>getTemperatureFromByCoordinates</code> accepts a <code>Tuple2</code> of <code>Int</code> and <code>Int</code>, and we
+        return <code>F</code> which represents our <code>MonadError</code> which can be a type like <code>Either</code> or
+        <code>Validated</code>. In the method, since either <code>getCityClosestToCoordinate</code> and
+        <code>getTemperatureByCity</code> both return potential error types and they are monadic we can
+        compose them with a for comprehension.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">getTemperatureByCoordinates</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]: </span><span class="type-name">MonadError</span><span>[*[</span><span class="identifier">_</span><span>], </span><span class="type-name">String</span><span>]](</span><span class="identifier">x</span><span>: (</span><span class="type-name">Int</span><span>, </span><span class="type-name">Int</span><span>)): </span><span class="type-name">F</span><span>[</span><span class="type-name">Int</span><span>] = {
+  </span><span class="keyword">for</span><span> { </span><span class="identifier">c</span><span> &lt;- </span><span class="identifier">getCityClosestToCoordinate</span><span>[</span><span class="type-name">F</span><span>](</span><span class="identifier">x</span><span>)
+        </span><span class="identifier">t</span><span> &lt;- </span><span class="identifier">getTemperatureByCity</span><span>[</span><span class="type-name">F</span><span>](</span><span class="identifier">c</span><span>) } </span><span class="keyword">yield</span><span> </span><span class="identifier">t</span><span>
+}</span></code></pre>
+        <p>Invoking <code>getTemperatureByCoordinates</code> we can call it with the following sample, 
+        which will return <code>78</code>. </p>
+        <p>NOTE: infix <code>-&gt;</code> creates a <code>Tuple2</code>. <code>1 -&gt; &quot;Bob&quot;</code> is the same as <code>(1, &quot;Bob&quot;)</code></p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">type</span><span> </span><span class="type-name">MyEither</span><span>[</span><span class="type-name">A</span><span>] = </span><span class="type-name">Either</span><span>[</span><span class="type-name">String</span><span>, </span><span class="type-name">A</span><span>]
+</span><span class="identifier">getTemperatureByCoordinates</span><span>[</span><span class="type-name">MyEither</span><span>](</span><span class="number-literal">44</span><span> -&gt; </span><span class="number-literal">93</span><span>)</span></code></pre>
+        <p>With TypeLevel Cats, how you structure your methods is up to you, if you wanted to
+        create <code>getTemperatureByCoordinates</code> without a Scala 
+        <a href="https://docs.scala-lang.org/tutorials/FAQ/context-bounds.html">context bound</a> for <code>MonadError</code>,
+        but create an <code>implicit</code> parameter for your <code>MonadError</code> you can have access to some 
+        additional methods.</p>
+        <p>In the following example, we create an <code>implicit</code> <code>MonadError</code> parameter
+        and call it <code>me</code>. Using the <code>me</code> reference, we can call any one of its 
+        specialized methods, like <code>raiseError</code>, to raise an error representation
+        when things go wrong.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">getTemperatureFromByCoordinatesAlternate</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]](</span><span class="identifier">x</span><span>: (</span><span class="type-name">Int</span><span>, </span><span class="type-name">Int</span><span>))(</span><span class="keyword">implicit</span><span> </span><span class="identifier">me</span><span>: </span><span class="type-name">MonadError</span><span>[</span><span class="type-name">F</span><span>, </span><span class="type-name">String</span><span>]): </span><span class="type-name">F</span><span>[</span><span class="type-name">Int</span><span>] = {
+  </span><span class="keyword">if</span><span> (</span><span class="identifier">x</span><span class="number-literal">._1</span><span> &lt; </span><span class="number-literal">0</span><span> || </span><span class="identifier">x</span><span class="number-literal">._2</span><span> &lt; </span><span class="number-literal">0</span><span>) </span><span class="identifier">me</span><span>.</span><span class="identifier">raiseError</span><span>(</span><span class="string-literal">&quot;Invalid Coordinates&quot;</span><span>)
+  </span><span class="keyword">else</span><span> </span><span class="keyword">for</span><span> { </span><span class="identifier">c</span><span> &lt;- </span><span class="identifier">getCityClosestToCoordinate</span><span>[</span><span class="type-name">F</span><span>](</span><span class="identifier">x</span><span>)
+        </span><span class="identifier">t</span><span> &lt;- </span><span class="identifier">getTemperatureByCity</span><span>[</span><span class="type-name">F</span><span>](</span><span class="identifier">c</span><span>) } </span><span class="keyword">yield</span><span> </span><span class="identifier">t</span><span>
+}</span></code></pre>
+
+        <hr style="margin-top: 30px"/>
+        <footer style="font-size: 90%; text-align: center">
+          cats is a <a href="https://typelevel.org/">Typelevel</a> project distributed under the <a href="https://opensource.org/licenses/MIT">MIT</a> license.
+        </footer>
+
+      </main>
+
+    </div>
+
+  </body>
+</html>
